@@ -12,6 +12,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import datetime
 
+from obspy.core.stream import Stream
+from obspy.core.trace import Trace
+
+import matplotlib.pyplot as plt
+
 __author__ = "Vaclav Kuna"
 __copyright__ = ""
 __license__ = ""
@@ -62,135 +67,76 @@ class Detect:
 
         for device in devices:
 
-            det_time = []
-
             for channel in ["x", "y", "z"]:
 
                 trace = self.raw_data.data[self.raw_data.data["device_id"] == device][
                     channel
-                ].iloc[-(LTA_len + STA_len) :]
+                ].to_numpy()
                 time = self.raw_data.data[self.raw_data.data["device_id"] == device][
                     "cloud_t"
-                ].iloc[-(LTA_len + STA_len) :]
-
-                try:
-                    STALTA = self.standard_STALTA(trace)
-                    (ind,) = np.where(STALTA > STALTA_thresh)
-                    det_time.append(time.iloc[LTA_len + ind[0]])
-                except:
-                    pass
-
-            if len(det_time) > 0:
-
-                past_detections = self.detections.data[
-                    (self.detections.data["device_id"] == device)
-                    & (self.detections.data["cloud_t"] - max(det_time) + det_off_win)
-                    > 0
                 ]
+                sr = self.raw_data.data[self.raw_data.data["device_id"] == device][
+                    "sr"
+                ].iloc[0]
 
-                if past_detections.shape[0] == 0:
+                if len(trace)>STA_len+LTA_len:
 
-                    # Get event ID
-                    # region
-                    region = self.params["region"]
+                    # set new trace
+                    tr = Trace()
+                    tr.data = trace
+                    tr.stats.delta = 1/sr
+                    tr.stats.channel = channel
+                    tr.stats.station = device
+        
+                    tr.filter("highpass", freq=1.0)
+                    tr.trigger('recstalta', sta=1, lta=10)
 
-                    # timestamp
-                    timestamp = datetime.utcfromtimestamp(min(det_time))
-                    year = str(timestamp.year - 2000).zfill(2)
-                    month = str(timestamp.month).zfill(2)
-                    day = str(timestamp.day).zfill(2)
-                    hour = str(timestamp.hour).zfill(2)
-                    minute = str(timestamp.minute).zfill(2)
-                    detection_id = "D_" + region + year + month + day + hour + minute
+                    (ind,) = np.where(tr.data > STALTA_thresh)
 
-                    new_detection = pd.DataFrame(
-                        {
-                            "detection_id": detection_id,
-                            "device_id": device,
-                            "cloud_t": min(det_time),
-                            "mag1": None,
-                            "mag2": None,
-                            "mag3": None,
-                            "mag4": None,
-                            "mag5": None,
-                            "mag6": None,
-                            "mag7": None,
-                            "mag8": None,
-                            "mag9": None,
-                            "event_id": None,
-                        },
-                        index=[0],
-                    )
+                    if len(ind)>0:
+                        det_time = time.iloc[ind[0]]
 
-                    self.detections.update(new_detection)
+                        past_detections = self.detections.data[
+                            (self.detections.data["device_id"] == device)
+                            & (self.detections.data["cloud_t"] - det_time + det_off_win)
+                            > 0
+                        ]
 
-    def standard_STALTA(self, trace):
+                        if past_detections.shape[0] == 0:
 
-        STA_len = self.params["STA_len"]
-        LTA_len = self.params["LTA_len"]
+                            # Get event ID
+                            # region
+                            region = self.params["region"]
 
-        # check if there is enough data for calculation,
-        # otherwise return False
-        if len(trace) < (STA_len + LTA_len):
-            print('aborted')
-            return False
+                            # timestamp
+                            timestamp = datetime.utcfromtimestamp(det_time)
+                            year = str(timestamp.year - 2000).zfill(2)
+                            month = str(timestamp.month).zfill(2)
+                            day = str(timestamp.day).zfill(2)
+                            hour = str(timestamp.hour).zfill(2)
+                            minute = str(timestamp.minute).zfill(2)
+                            detection_id = "D_" + region + year + month + day + hour + minute
 
-        print('alright')
-        # demean detrend do something
-        trace = trace - np.mean(trace)
-        trace = abs(trace)
+                            new_detection = pd.DataFrame(
+                                {
+                                    "detection_id": detection_id,
+                                    "device_id": device,
+                                    "cloud_t": det_time,
+                                    "mag1": None,
+                                    "mag2": None,
+                                    "mag3": None,
+                                    "mag4": None,
+                                    "mag5": None,
+                                    "mag6": None,
+                                    "mag7": None,
+                                    "mag8": None,
+                                    "mag9": None,
+                                    "event_id": None,
+                                },
+                                index=[0],
+                            )
 
-        # calculate first LTA and STA
-        LTA_first = np.mean(trace[0:LTA_len])
-        STA_first = np.mean(trace[LTA_len - STA_len : LTA_len])
-
-        # the beginning of the LTA
-        LTA_beg_vector = trace[0:STA_len]  # take the start of the array
-        LTA_beg_mat = np.tile(
-            LTA_beg_vector, (STA_len, 1)
-        )  # repeat the vector in matrix
-        LTA_beg_mat = np.tril(
-            LTA_beg_mat, k=-1
-        )  # do the lower triangular transformation
-
-        # the end of the LTA and STA (they  are the same)
-        STALTA_end_vector = trace[
-            LTA_len : LTA_len + STA_len
-        ]  # take the start of the array
-        STALTA_end_mat = np.tile(
-            STALTA_end_vector, (STA_len, 1)
-        )  # repeat the vector in matrix
-        STALTA_end_mat = np.tril(
-            STALTA_end_mat, k=-1
-        )  # do the lower triangular transformation
-
-        # the beginning of the STA
-        STA_beg_vector = trace[
-            LTA_len - STA_len : LTA_len
-        ]  # take the start of the array
-        STA_beg_mat = np.tile(
-            STA_beg_vector, (STA_len, 1)
-        )  # repeat the vector in matrix
-        STA_beg_mat = np.tril(
-            STA_beg_mat, k=-1
-        )  # do the lower triangular transformation
-
-        # calculate LTA vector
-        LTA = (
-            LTA_first
-            + (np.sum(STALTA_end_mat, axis=1) - np.sum(LTA_beg_mat, axis=1)) / LTA_len
-        )
-
-        # calculate STA vector
-        STA = (
-            STA_first
-            + (np.sum(STALTA_end_mat, axis=1) - np.sum(STA_beg_mat, axis=1)) / STA_len
-        )
-
-        # calculate STA/LTA
-        STALTA = STA / LTA
-
-        return STALTA
+                            self.detections.update(new_detection)
 
     def get_pd(self, trace, time, det_time):
 

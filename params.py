@@ -36,7 +36,7 @@ device_local_path = "./data/devices/device_locations.json"
 
 # LOCATION AND MAGNITUDE REGRESSION PARAMS
 tsl_max = 20  # save/discard event after this many seconds without a new detection
-assoc_win = 1  # window for associated phases
+assoc_win = 2  # window for associated phases
 ndef_min = 4  # minimum number of station detections defining an event
 sigma_type = "const"  # either 'const' sigma or 'linear' function
 sigma_const = 3  # overall time error (travel time + pick + cloud_time)
