@@ -79,7 +79,7 @@ class Detect:
                     "sr"
                 ].iloc[0]
 
-                if len(trace) > STA_len + LTA_len:
+                if len(trace) > int(np.ceil(sr*(STA_len + LTA_len))):
 
                     # set new trace
                     tr = Trace()
