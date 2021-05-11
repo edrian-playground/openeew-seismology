@@ -79,21 +79,21 @@ class Detect:
                     "sr"
                 ].iloc[0]
 
-                if len(trace)>STA_len+LTA_len:
+                if len(trace) > STA_len + LTA_len:
 
                     # set new trace
                     tr = Trace()
                     tr.data = trace
-                    tr.stats.delta = 1/sr
+                    tr.stats.delta = 1 / sr
                     tr.stats.channel = channel
                     tr.stats.station = device
-        
+
                     tr.filter("highpass", freq=1.0)
-                    tr.trigger('recstalta', sta=1, lta=10)
+                    tr.trigger("recstalta", sta=1, lta=10)
 
                     (ind,) = np.where(tr.data > STALTA_thresh)
 
-                    if len(ind)>0:
+                    if len(ind) > 0:
                         det_time = time.iloc[ind[0]]
 
                         past_detections = self.detections.data[
@@ -115,7 +115,9 @@ class Detect:
                             day = str(timestamp.day).zfill(2)
                             hour = str(timestamp.hour).zfill(2)
                             minute = str(timestamp.minute).zfill(2)
-                            detection_id = "D_" + region + year + month + day + hour + minute
+                            detection_id = (
+                                "D_" + region + year + month + day + hour + minute
+                            )
 
                             new_detection = pd.DataFrame(
                                 {
