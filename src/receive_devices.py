@@ -96,10 +96,10 @@ class GetDevices:
             try:
                 # try to get devices from cloud
                 self.get_devices()
-                print("✅ Received devices from the cloudant database.")
+                # print("✅ Received devices from the cloudant database.")
             except:
                 # get devices from json file locally
                 self.get_devices_local()
-                print("✅ Received devices from a local file.")
+                # print("✅ Received devices from a local file.")
 
             time.sleep(self.params["sleep_time_devices"])

@@ -97,6 +97,8 @@ def publish_jsonl(data_path, client, topic):
 
         time.sleep(timediff.iloc[i])
 
+        print(json_str)
+
         print(
             datetime.utcfromtimestamp(data["cloud_t"].iloc[i]).strftime(
                 "%Y-%m-%d %H:%M:%S"

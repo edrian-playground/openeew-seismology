@@ -49,7 +49,7 @@ class DataReceiver:
                 username=os.environ["CUS_MQTT_USERNAME"],
                 password=os.environ["CUS_MQTT_PASSWORD"],
                 clientid=os.environ["CUS_MQTT_CLIENTID"] + "_rec",
-                cafile=os.environ["CUS_MQTT_CERT"],
+                # cafile=os.environ["CUS_MQTT_CERT"],
             )
 
         client.loop_forever()
@@ -73,7 +73,7 @@ class DataReceiver:
         """Upon connecting to an MQTT server, subscribe to the topic
         The production topic is 'iot-2/type/OpenEEW/id/+/evt/trace/fmt/json'"""
 
-        topic = "iot-2/type/OpenEEW/id/000000000000/evt/trace/fmt/json"
+        topic = "iot-2/type/OpenEEW/id/+/evt/trace/fmt/json"
 
         print(f"✅ Subscribed to sensor data with result code {resultcode}")
         client.subscribe(topic)

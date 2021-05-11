@@ -132,8 +132,10 @@ class Detect:
         # check if there is enough data for calculation,
         # otherwise return False
         if len(trace) < (STA_len + LTA_len):
+            print('aborted')
             return False
 
+        print('alright')
         # demean detrend do something
         trace = trace - np.mean(trace)
         trace = abs(trace)
