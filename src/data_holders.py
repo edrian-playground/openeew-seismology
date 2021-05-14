@@ -44,11 +44,11 @@ class RawData:
             self.data = self.data[
                 (self.data["cloud_t"] + params["buffer_len"]) >= cloud_t
             ]
-            print(
-                "▫️ Size of data in the buffer "
-                + str(int(sys.getsizeof(self.data) / 1e5) / 10)
-                + " mb"
-            )
+            # print(
+            #     "▫️ Size of data in the buffer "
+            #     + str(int(sys.getsizeof(self.data) / 1e5) / 10)
+            #     + " mb"
+            # )
         except:
             pass
 
@@ -103,7 +103,7 @@ class Detections:
             self.data = self.data[
                 (self.data["cloud_t"] + params["det_ev_buffer"]) >= cloud_t
             ]
-            print("▫️ Number of detections in the buffer " + str(len(self.data)))
+            # print("▫️ Number of detections in the buffer " + str(len(self.data)))
         except:
             pass
 
@@ -160,7 +160,7 @@ class Events:
             self.data = self.data[
                 (self.data["cloud_t"] + params["det_ev_buffer"]) >= cloud_t
             ]
-            print("▫️ Number of events in the buffer " + str(len(self.data)))
+            # print("▫️ Number of events in the buffer " + str(len(self.data)))
         except:
             pass
 

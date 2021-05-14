@@ -21,8 +21,8 @@ det_ev_buffer = 30  # how long to keep events and detections in buffer
 # DETECTION
 det_type = "stalta"  # 'stalta' or 'ml' for machine learning
 detection_model_name = "detection_model.model"  # name of the ml model
-STA_len = 32  # STA length in samples
-LTA_len = 320  # LTA length in samples
+STA_len = 1  # STA length in samples
+LTA_len = 10  # LTA length in samples
 array_samp = 352  # must be >= STA_len+LTA_len for 'stalta', or 300 for 'ml'
 STALTA_thresh = 3  # threshold for STA/LTA
 no_det_win = 60  # window without new detections after a detection
@@ -36,7 +36,7 @@ device_local_path = "./data/devices/device_locations.json"
 
 # LOCATION AND MAGNITUDE REGRESSION PARAMS
 tsl_max = 20  # save/discard event after this many seconds without a new detection
-assoc_win = 1  # window for associated phases
+assoc_win = 2  # window for associated phases
 ndef_min = 4  # minimum number of station detections defining an event
 sigma_type = "const"  # either 'const' sigma or 'linear' function
 sigma_const = 3  # overall time error (travel time + pick + cloud_time)

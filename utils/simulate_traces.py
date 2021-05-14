@@ -47,7 +47,7 @@ def run(datapath):
             username=os.environ["CUS_MQTT_USERNAME"],
             password=os.environ["CUS_MQTT_PASSWORD"],
             clientid=os.environ["CUS_MQTT_CLIENTID"] + "_sim",
-            cafile=os.environ["CUS_MQTT_CERT"],
+            # cafile=os.environ["CUS_MQTT_CERT"],
         )
 
     topic = "iot-2/type/OpenEEW/id/000000000000/evt/trace/fmt/json"
@@ -92,7 +92,10 @@ def publish_jsonl(data_path, client, topic):
     # loop over all json elements in the json array and publish to MQTT
     for i in range(len(data)):
 
-        json_str = data[["device_id", "x", "y", "z", "sr"]].iloc[i].to_json()
+        d = data[["device_id", "x", "y", "z", "sr"]].iloc[i]
+        d["device_id"] = "mx" + d["device_id"]
+
+        json_str = d.to_json()
         client.publish(topic, json.dumps(json_str))
 
         time.sleep(timediff.iloc[i])
@@ -105,7 +108,7 @@ def publish_jsonl(data_path, client, topic):
 
 
 eqs = [
-    # "2017_12_15",
+    "2017_12_15",
     "2017_12_16",
     "2017_12_25",
     "2018_1_8",

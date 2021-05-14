@@ -604,18 +604,19 @@ class Event:
         }
         self.events.update(new_event)
 
-        print("🔥 Event id " + str(event_id) + " in progress:")
-        print(
-            "     Magnitude: "
-            + str(magnitude)
-            + ", Lat: "
-            + str(best_lat)
-            + ", Lon: "
-            + str(best_lon)
-            + ", Associated detections: "
-            + str(num_assoc)
-            + "."
-        )
+        if num_assoc >= 4:
+            print("🔥 Event id " + str(event_id) + " in progress:")
+            print(
+                "     Magnitude: "
+                + str(magnitude)
+                + ", Lat: "
+                + str(best_lat)
+                + ", Lon: "
+                + str(best_lon)
+                + ", Associated detections: "
+                + str(num_assoc)
+                + "."
+            )
 
     def associate(self, event_id, new_index, new_detection):
         """
