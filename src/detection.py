@@ -4,18 +4,14 @@ Detection module
 
 # import modules
 import numpy as np
-from scipy import signal, integrate
-import itertools
+from scipy import signal
 import time
 import pandas as pd
 
 import matplotlib.pyplot as plt
 from datetime import datetime
 
-from obspy.core.stream import Stream
 from obspy.core.trace import Trace
-
-import matplotlib.pyplot as plt
 
 __author__ = "Vaclav Kuna"
 __copyright__ = ""
@@ -79,7 +75,7 @@ class Detect:
                     "sr"
                 ].iloc[0]
 
-                if len(trace) > int(np.ceil(sr*(STA_len + LTA_len))):
+                if len(trace) > int(np.ceil(sr * (STA_len + LTA_len))):
 
                     # set new trace
                     tr = Trace()
@@ -89,7 +85,11 @@ class Detect:
                     tr.stats.station = device
 
                     tr.filter("highpass", freq=1.0)
-                    tr.trigger("recstalta", sta=1, lta=10)
+                    tr.trigger(
+                        "recstalta",
+                        sta=self.params["STA_len"],
+                        lta=self.params["LTA_len"],
+                    )
 
                     (ind,) = np.where(tr.data > STALTA_thresh)
 
