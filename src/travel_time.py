@@ -24,16 +24,14 @@ def get_travel_time_vector(params):
     """ """
 
     # set params from params
-    lat_min = params["lat_min"]
-    lat_max = params["lat_max"]
-    lon_min = params["lon_min"]
-    lon_max = params["lon_max"]
+    lat_width = params["lat_width"]
+    lon_width = params["lon_width"]
     step = params["step"]
     vel_model = params["vel_model"]
     eq_depth = params["eq_depth"]
 
     # define maxiumum distance
-    max_dist = ((lat_max - lat_min) ** 2 + (lon_max - lon_min) ** 2) ** (1 / 2)
+    max_dist = ((lat_width/2) ** 2 + (lon_width/2) ** 2) ** (1 / 2)
 
     # define velocity model
     model = TauPyModel(model=vel_model)
@@ -68,14 +66,12 @@ def get_travel_time_vector(params):
 
 def get_lat_lon_grid(params):
 
-    lat_min = params["lat_min"]
-    lat_max = params["lat_max"]
-    lon_min = params["lon_min"]
-    lon_max = params["lon_max"]
+    lat_width = params["lat_width"]
+    lon_width = params["lon_width"]
     step = params["step"]
 
-    lat = np.arange(start=lat_min, stop=lat_max, step=step)
-    lon = np.arange(start=lon_min, stop=lon_max, step=step)
+    lat = np.arange(start=-lat_width/4, stop=lat_width/4, step=step)
+    lon = np.arange(start=-lon_width/4, stop=lon_width/4, step=step)
 
     xv, yv = np.meshgrid(lat, lon, sparse=False, indexing="ij")
 
@@ -85,12 +81,12 @@ def get_lat_lon_grid(params):
 def get_travel_time_grid(tt_precalc, params):
 
     # get width of the grid
-    lat_width = params["lat_max"] - params["lat_min"]
-    lon_width = params["lon_max"] - params["lon_min"]
+    lat_width = params["lat_width"]
+    lon_width = params["lon_width"]
 
     # get grid
-    lat = np.arange(start=-lat_width, stop=lat_width, step=params["step"])
-    lon = np.arange(start=-lon_width, stop=lon_width, step=params["step"])
+    lat = np.arange(start=-lat_width/2, stop=lat_width/2, step=params["step"])
+    lon = np.arange(start=-lon_width/2, stop=lon_width/2, step=params["step"])
 
     xv, yv = np.meshgrid(lat, lon, sparse=False, indexing="ij")
 
@@ -151,16 +147,13 @@ def get_travel_time(params):
 
     # try to load pre-computed travel time vector from file
     try:
-
         with open(tt_path + "/travel_times.pkl", "rb") as f:
             travel_times = pickle.load(f)
 
         if all(
             [
-                travel_times["params"]["lat_min"] == params["lat_min"],
-                travel_times["params"]["lat_max"] == params["lat_max"],
-                travel_times["params"]["lon_min"] == params["lon_min"],
-                travel_times["params"]["lon_max"] == params["lon_max"],
+                travel_times["params"]["lat_width"] == params["lat_width"],
+                travel_times["params"]["lon_width"] == params["lon_width"],
                 travel_times["params"]["eq_depth"] == params["eq_depth"],
                 travel_times["params"]["step"] == params["step"],
                 travel_times["params"]["vel_model"] == params["vel_model"],
@@ -193,10 +186,8 @@ def get_travel_time(params):
 
         # params to save
         params2save = {
-            "lat_min": params["lat_min"],
-            "lat_max": params["lat_max"],
-            "lon_min": params["lon_min"],
-            "lon_max": params["lon_max"],
+            "lat_width": params["lat_width"],
+            "lon_width": params["lon_width"],
             "step": params["step"],
             "eq_depth": params["eq_depth"],
             "vel_model": params["vel_model"],

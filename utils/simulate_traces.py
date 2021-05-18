@@ -95,8 +95,9 @@ def publish_jsonl(data_path, client, topic):
         d = data[["device_id", "x", "y", "z", "sr"]].iloc[i]
         d["device_id"] = "mx" + d["device_id"]
 
-        json_str = d.to_json()
-        client.publish(topic, json.dumps(json_str))
+        to_publish = {"traces": [{"x": d["x"], "y": d["y"], "z": d["z"]}], "sr": d["sr"], "device_id": d["device_id"]}
+
+        client.publish(topic, json.dumps(to_publish))
 
         time.sleep(timediff.iloc[i])
 
@@ -108,7 +109,7 @@ def publish_jsonl(data_path, client, topic):
 
 
 eqs = [
-    "2017_12_15",
+    # "2017_12_15",
     "2017_12_16",
     "2017_12_25",
     "2018_1_8",

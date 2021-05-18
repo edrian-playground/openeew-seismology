@@ -50,10 +50,10 @@ class Event:
                 self.set_new_event(new_index, new_detection)
 
             print("⭐ New detection at the device " + new_detection["device_id"] + ".")
-            print(
-                "     Associated with event id: "
-                + str(self.detections.data["event_id"].iloc[-1])
-            )
+            # print(
+            #     "     Associated with event id: "
+            #     + str(self.detections.data["event_id"].iloc[-1])
+            # )
 
         # 3. Update location and magnitude of each event
         for event_id in list(self.active_events.keys()):
@@ -64,15 +64,13 @@ class Event:
             # Delete event if it is too old
             if tsl > self.params["tsl_max"]:
                 del self.active_events[event_id]
+                self.detections.drop(event_id, self.params)
+                self.events.drop(event_id)
 
             # Or update location, magnitude, and origin time, publish to mqtt
             else:
                 self.update_events(event_id)
                 self.events.publish_event(self.params, event_id=event_id)
-
-        # 4. Drop detections and events that are older than det_ev_buffer
-        self.detections.drop(self.params)
-        self.events.drop(self.params)
 
     def get_detections(self):
         """Get new detections from the detection table"""
@@ -86,9 +84,6 @@ class Event:
         """This sets a new event in the class"""
 
         # Get event ID
-        # region
-        region = self.params["region"]
-
         # timestamp
         timestamp = datetime.datetime.utcfromtimestamp(new_detection["cloud_t"])
         year = str(timestamp.year - 2000).zfill(2)
@@ -96,7 +91,7 @@ class Event:
         day = str(timestamp.day).zfill(2)
         hour = str(timestamp.hour).zfill(2)
         minute = str(timestamp.minute).zfill(2)
-        event_id = "E_" + region + year + month + day + hour + minute
+        event_id = "E_" + year + month + day + hour + minute
 
         # alphabet letter
         all_events_id = list(set(self.events.data["event_id"].to_list()))
@@ -231,8 +226,8 @@ class Event:
         regions, vertices = self.voronoi_finite_polygons_2d(vor)
 
         # get the lat and lon grid
-        lat_grid = self.travel_times.grid_lat
-        lon_grid = self.travel_times.grid_lon
+        lat_grid = self.travel_times.grid_lat + loc_det[0][1]
+        lon_grid = self.travel_times.grid_lon + loc_det[0][0]
 
         # get the polygon aroud the device with detection
         polygon = vertices[regions[0]]
@@ -430,8 +425,24 @@ class Event:
 
     def get_best_location(self, event_id, add_prob=0):
 
-        lat = self.travel_times.grid_lat
-        lon = self.travel_times.grid_lon
+        # get first detection
+        first_det = self.detections.data[
+            self.detections.data["event_id"] == event_id
+        ].iloc[0]
+
+        first_sta = first_det["device_id"]
+        first_time = first_det["cloud_t"]
+
+        # get the first device latitude and longitude
+        fist_dev_lat = self.devices.data[self.devices.data["device_id"] == first_sta][
+            "latitude"
+        ].iloc[0]
+        fist_dev_lon = self.devices.data[self.devices.data["device_id"] == first_sta][
+            "longitude"
+        ].iloc[0]
+
+        lat = self.travel_times.grid_lat+fist_dev_lat
+        lon = self.travel_times.grid_lon+fist_dev_lon
 
         # initial probability is equal to the prior
         loc_prob = self.active_events[event_id]["loc_prob"]
@@ -444,47 +455,49 @@ class Event:
         best_lon = lon[loc_prob == loc_prob.max()][0]
         best_depth = self.params["eq_depth"]  # depth is fixed for all
 
-        # get first detection
-        first_det = self.detections.data[
-            self.detections.data["event_id"] == event_id
-        ].iloc[0]
-
         # get origin time based on the location and the first detection
-        first_sta = first_det["device_id"]
-        first_time = first_det["cloud_t"]
-        device_grid = self.get_device_tt_grid(first_sta, self.params)
+        device_grid = self.get_device_tt_grid(first_sta, first_sta, self.params)
 
         sta_travel_time = device_grid[loc_prob == loc_prob.max()]
         best_orig_time = first_time - sta_travel_time[0]
 
         return best_lat, best_lon, best_depth, best_orig_time
 
-    def get_device_tt_grid(self, device_id, params):
+    def get_device_tt_grid(self, device_id, first_device_id, params):
 
         # get device latitude and longitude
         dev_lat = self.devices.data[self.devices.data["device_id"] == device_id][
             "latitude"
-        ]
+        ].iloc[0]
         dev_lon = self.devices.data[self.devices.data["device_id"] == device_id][
             "longitude"
-        ]
+        ].iloc[0]
+
+        # get the first device latitude and longitude
+        fist_dev_lat = self.devices.data[self.devices.data["device_id"] == first_device_id][
+            "latitude"
+        ].iloc[0]
+        fist_dev_lon = self.devices.data[self.devices.data["device_id"] == first_device_id][
+            "longitude"
+        ].iloc[0]
 
         # get grid limits
-        lat_min = params["lat_min"]
-        lat_max = params["lat_max"]
-        lon_min = params["lon_min"]
-        lon_max = params["lon_max"]
+        lat_min = -params["lat_width"]/4+fist_dev_lat
+        lat_max = params["lat_width"]/4+fist_dev_lat
+        lon_min = -params["lon_width"]/4+fist_dev_lon
+        lon_max = params["lon_width"]/4+fist_dev_lon
         step = params["step"]
 
         # get first and last samples
         first_sample_lat = int(
             np.round(((lat_max - lat_min) - (dev_lat - lat_min)) * (1 / step))
         )
-        last_sample_lat = first_sample_lat + self.travel_times.grid_lat.shape[0]
+        last_sample_lat = first_sample_lat + int(self.travel_times.grid_lat.shape[0])
+        
         first_sample_lon = int(
             np.round(((lon_max - lon_min) - (dev_lon - lon_min)) * (1 / step))
         )
-        last_sample_lon = first_sample_lon + self.travel_times.grid_lat.shape[1]
+        last_sample_lon = first_sample_lon + int(self.travel_times.grid_lat.shape[1])
 
         # get the device grid
         dev_grid = self.travel_times.tt_grid[
@@ -635,6 +648,11 @@ class Event:
         new_device = new_detection["device_id"]
         new_time = new_detection["cloud_t"]
 
+        # get first detection
+        first_det_device = self.detections.data[
+            self.detections.data["event_id"] == event_id
+        ].iloc[0]["device_id"]
+
         # set a new list of new probabilities
         new_prob = np.zeros_like(self.travel_times.grid_lat)
 
@@ -651,8 +669,8 @@ class Event:
                 sigma = self.get_sigma(event_id, new_device, det_device)
 
                 # calculate probability curve
-                grid_device_old = self.get_device_tt_grid(det_device, self.params)
-                grid_device_new = self.get_device_tt_grid(new_device, self.params)
+                grid_device_old = self.get_device_tt_grid(det_device, first_det_device, self.params)
+                grid_device_new = self.get_device_tt_grid(new_device, first_det_device, self.params)
 
                 tt_prob = np.exp(
                     -((grid_device_old - grid_device_new - det_time + new_time) ** 2)

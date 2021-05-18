@@ -25,9 +25,9 @@ __status__ = ""
 class Detect:
     """This class handles all the detection procedures"""
 
-    def __init__(self, raw_data, detections, params) -> None:
+    def __init__(self, traces, detections, params) -> None:
         super().__init__()
-        self.raw_data = raw_data
+        self.traces = traces
         self.detections = detections
         self.params = params
 
@@ -47,7 +47,7 @@ class Detect:
         self.station_magnitude()
 
         # drop old data from the buffer
-        self.raw_data.drop(self.params)
+        self.traces.drop(self.params)
 
     def detect_stalta(self):
 
@@ -57,7 +57,7 @@ class Detect:
         det_off_win = self.params["no_det_win"]
 
         try:
-            devices = self.raw_data.data["device_id"].unique()
+            devices = self.traces.data["device_id"].unique()
         except:
             devices = []
 
@@ -65,13 +65,13 @@ class Detect:
 
             for channel in ["x", "y", "z"]:
 
-                trace = self.raw_data.data[self.raw_data.data["device_id"] == device][
+                trace = self.traces.data[self.traces.data["device_id"] == device][
                     channel
                 ].to_numpy()
-                time = self.raw_data.data[self.raw_data.data["device_id"] == device][
+                time = self.traces.data[self.traces.data["device_id"] == device][
                     "cloud_t"
                 ]
-                sr = self.raw_data.data[self.raw_data.data["device_id"] == device][
+                sr = self.traces.data[self.traces.data["device_id"] == device][
                     "sr"
                 ].iloc[0]
 
@@ -105,9 +105,6 @@ class Detect:
                         if past_detections.shape[0] == 0:
 
                             # Get event ID
-                            # region
-                            region = self.params["region"]
-
                             # timestamp
                             timestamp = datetime.utcfromtimestamp(det_time)
                             year = str(timestamp.year - 2000).zfill(2)
@@ -116,7 +113,7 @@ class Detect:
                             hour = str(timestamp.hour).zfill(2)
                             minute = str(timestamp.minute).zfill(2)
                             detection_id = (
-                                "D_" + region + year + month + day + hour + minute
+                                "D_" + year + month + day + hour + minute
                             )
 
                             new_detection = pd.DataFrame(
@@ -148,7 +145,7 @@ class Detect:
         """
 
         # define variables
-        sr = self.raw_data.data["sr"][0]  # definition of sampling frequency
+        sr = self.traces.data["sr"][0]  # definition of sampling frequency
 
         # double integration of stream in displacement
         trace = np.cumsum(trace * 1 / sr)
@@ -196,7 +193,7 @@ class Detect:
 
         # what the time is
         try:
-            time_now = self.raw_data.data["cloud_t"].iloc[-1]
+            time_now = self.traces.data["cloud_t"].iloc[-1]
         except:
             return
 
@@ -212,13 +209,13 @@ class Detect:
                 device_id = detection["device_id"]
                 det_cloud_t = detection["cloud_t"]
 
-                trace = self.raw_data.data[
-                    (self.raw_data.data["device_id"] == device_id)
-                    & (self.raw_data.data["cloud_t"] > det_cloud_t)
+                trace = self.traces.data[
+                    (self.traces.data["device_id"] == device_id)
+                    & (self.traces.data["cloud_t"] > det_cloud_t)
                 ][vert_chan]
-                time = self.raw_data.data[
-                    (self.raw_data.data["device_id"] == device_id)
-                    & (self.raw_data.data["cloud_t"] > det_cloud_t)
+                time = self.traces.data[
+                    (self.traces.data["device_id"] == device_id)
+                    & (self.traces.data["cloud_t"] > det_cloud_t)
                 ]["cloud_t"]
 
                 # get the peak ground displacement for [1,2,3,4,5,6,7,8,9] s windows

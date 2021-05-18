@@ -5,7 +5,7 @@ from paho.mqtt.client import Client as MqttClient
 import os
 
 
-def run(region, topic, json_data, params):
+def run(topic, json_data, params):
     """
     Main method that creates client and executes the rest of the script
 
@@ -40,7 +40,7 @@ def run(region, topic, json_data, params):
             # cafile=os.environ["CUS_MQTT_CERT"],
         )
 
-    topic = "iot-2/type/OpenEEW/id/" + region + "/evt/" + topic + "/fmt/json"
+    topic = "iot-2/type/OpenEEW/id/region/evt/" + topic + "/fmt/json"
 
     publish_json(client, topic, json_data)
 

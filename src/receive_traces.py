@@ -6,7 +6,7 @@ import os
 
 
 class DataReceiver:
-    """This class subscribes to the MQTT and receivces raw data"""
+    """This class subscribes to the MQTT and receivces traces"""
 
     def __init__(self, df_holder, params) -> None:
         """
@@ -74,9 +74,12 @@ class DataReceiver:
         The production topic is 'iot-2/type/OpenEEW/id/+/evt/trace/fmt/json'"""
 
         topic = "iot-2/type/OpenEEW/id/+/evt/trace/fmt/json"
+        client.subscribe(topic)
+
+        topic = "iot-2/evt/status/fmt/json"
+        client.subscribe(topic)
 
         print(f"✅ Subscribed to sensor data with result code {resultcode}")
-        client.subscribe(topic)
 
     def on_message(self, client, userdata, message):
         """When a message is sent to a subscribed topic,
