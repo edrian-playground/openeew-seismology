@@ -31,7 +31,7 @@ def get_travel_time_vector(params):
     eq_depth = params["eq_depth"]
 
     # define maxiumum distance
-    max_dist = ((lat_width/2) ** 2 + (lon_width/2) ** 2) ** (1 / 2)
+    max_dist = ((lat_width / 2) ** 2 + (lon_width / 2) ** 2) ** (1 / 2)
 
     # define velocity model
     model = TauPyModel(model=vel_model)
@@ -70,8 +70,8 @@ def get_lat_lon_grid(params):
     lon_width = params["lon_width"]
     step = params["step"]
 
-    lat = np.arange(start=-lat_width/4, stop=lat_width/4, step=step)
-    lon = np.arange(start=-lon_width/4, stop=lon_width/4, step=step)
+    lat = np.arange(start=-lat_width / 4, stop=lat_width / 4, step=step)
+    lon = np.arange(start=-lon_width / 4, stop=lon_width / 4, step=step)
 
     xv, yv = np.meshgrid(lat, lon, sparse=False, indexing="ij")
 
@@ -85,8 +85,8 @@ def get_travel_time_grid(tt_precalc, params):
     lon_width = params["lon_width"]
 
     # get grid
-    lat = np.arange(start=-lat_width/2, stop=lat_width/2, step=params["step"])
-    lon = np.arange(start=-lon_width/2, stop=lon_width/2, step=params["step"])
+    lat = np.arange(start=-lat_width / 2, stop=lat_width / 2, step=params["step"])
+    lon = np.arange(start=-lon_width / 2, stop=lon_width / 2, step=params["step"])
 
     xv, yv = np.meshgrid(lat, lon, sparse=False, indexing="ij")
 

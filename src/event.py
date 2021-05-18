@@ -441,8 +441,8 @@ class Event:
             "longitude"
         ].iloc[0]
 
-        lat = self.travel_times.grid_lat+fist_dev_lat
-        lon = self.travel_times.grid_lon+fist_dev_lon
+        lat = self.travel_times.grid_lat + fist_dev_lat
+        lon = self.travel_times.grid_lon + fist_dev_lon
 
         # initial probability is equal to the prior
         loc_prob = self.active_events[event_id]["loc_prob"]
@@ -474,18 +474,18 @@ class Event:
         ].iloc[0]
 
         # get the first device latitude and longitude
-        fist_dev_lat = self.devices.data[self.devices.data["device_id"] == first_device_id][
-            "latitude"
-        ].iloc[0]
-        fist_dev_lon = self.devices.data[self.devices.data["device_id"] == first_device_id][
-            "longitude"
-        ].iloc[0]
+        fist_dev_lat = self.devices.data[
+            self.devices.data["device_id"] == first_device_id
+        ]["latitude"].iloc[0]
+        fist_dev_lon = self.devices.data[
+            self.devices.data["device_id"] == first_device_id
+        ]["longitude"].iloc[0]
 
         # get grid limits
-        lat_min = -params["lat_width"]/4+fist_dev_lat
-        lat_max = params["lat_width"]/4+fist_dev_lat
-        lon_min = -params["lon_width"]/4+fist_dev_lon
-        lon_max = params["lon_width"]/4+fist_dev_lon
+        lat_min = -params["lat_width"] / 4 + fist_dev_lat
+        lat_max = params["lat_width"] / 4 + fist_dev_lat
+        lon_min = -params["lon_width"] / 4 + fist_dev_lon
+        lon_max = params["lon_width"] / 4 + fist_dev_lon
         step = params["step"]
 
         # get first and last samples
@@ -493,7 +493,7 @@ class Event:
             np.round(((lat_max - lat_min) - (dev_lat - lat_min)) * (1 / step))
         )
         last_sample_lat = first_sample_lat + int(self.travel_times.grid_lat.shape[0])
-        
+
         first_sample_lon = int(
             np.round(((lon_max - lon_min) - (dev_lon - lon_min)) * (1 / step))
         )
@@ -669,8 +669,12 @@ class Event:
                 sigma = self.get_sigma(event_id, new_device, det_device)
 
                 # calculate probability curve
-                grid_device_old = self.get_device_tt_grid(det_device, first_det_device, self.params)
-                grid_device_new = self.get_device_tt_grid(new_device, first_det_device, self.params)
+                grid_device_old = self.get_device_tt_grid(
+                    det_device, first_det_device, self.params
+                )
+                grid_device_new = self.get_device_tt_grid(
+                    new_device, first_det_device, self.params
+                )
 
                 tt_prob = np.exp(
                     -((grid_device_old - grid_device_new - det_time + new_time) ** 2)

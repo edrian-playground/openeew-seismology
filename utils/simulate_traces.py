@@ -95,7 +95,11 @@ def publish_jsonl(data_path, client, topic):
         d = data[["device_id", "x", "y", "z", "sr"]].iloc[i]
         d["device_id"] = "mx" + d["device_id"]
 
-        to_publish = {"traces": [{"x": d["x"], "y": d["y"], "z": d["z"]}], "sr": d["sr"], "device_id": d["device_id"]}
+        to_publish = {
+            "traces": [{"x": d["x"], "y": d["y"], "z": d["z"]}],
+            "sr": d["sr"],
+            "device_id": d["device_id"],
+        }
 
         client.publish(topic, json.dumps(to_publish))
 

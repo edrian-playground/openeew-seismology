@@ -24,7 +24,14 @@ class Traces:
         z = data["traces"][0]["z"]
         sr = 31.25
 
-        data = {"device_id": device_id, "x": x, "y": y, "z": z, "sr": sr, "cloud_t": cloud_t}
+        data = {
+            "device_id": device_id,
+            "x": x,
+            "y": y,
+            "z": z,
+            "sr": sr,
+            "cloud_t": cloud_t,
+        }
 
         # create cloud_time vector and replicate device_id
         number_of_entires = len(data["x"])
@@ -89,13 +96,13 @@ class Detections:
     def drop(self, event_id, params):
 
         # publish old detections to mqtt
-        old_detections = self.data[self.data["event_id"]==event_id]
+        old_detections = self.data[self.data["event_id"] == event_id]
 
         for _, det in old_detections.iterrows():
             json_data = det.to_dict()
 
             publish_mqtt.run("detection", json_data, params)
-        
+
         self.data = self.data[self.data["event_id"] != event_id]
 
 

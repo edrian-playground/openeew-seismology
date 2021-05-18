@@ -112,9 +112,7 @@ class Detect:
                             day = str(timestamp.day).zfill(2)
                             hour = str(timestamp.hour).zfill(2)
                             minute = str(timestamp.minute).zfill(2)
-                            detection_id = (
-                                "D_" + year + month + day + hour + minute
-                            )
+                            detection_id = "D_" + year + month + day + hour + minute
 
                             new_detection = pd.DataFrame(
                                 {
