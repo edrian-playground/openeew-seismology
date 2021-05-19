@@ -6,7 +6,7 @@ from paho.mqtt.client import Client as MqttClient
 
 import pandas as pd
 import time
-from datetime import datetime
+import datetime
 
 import os, sys, inspect
 
@@ -23,7 +23,7 @@ def run(datapath):
         # create a client
         client = create_client(
             host=os.environ["MQTT_HOST"],
-            port=os.environ["MQTT_PORT"],
+            port=int(os.environ["MQTT_PORT"]),
             username=os.environ["MQTT_USERNAME"],
             password=os.environ["MQTT_PASSWORD"],
             clientid=os.environ["MQTT_CLIENTID"] + "_sim",
@@ -90,7 +90,11 @@ def publish_jsonl(data_path, client, topic):
     timediff = timediff.iloc[1:].append(pd.Series([0])) / 1
 
     # loop over all json elements in the json array and publish to MQTT
-    for i in range(len(data)):
+    for i in range(3300, len(data)):
+
+        dt = datetime.datetime.now(datetime.timezone.utc)
+        utc_time = dt.replace(tzinfo=datetime.timezone.utc)
+        cloud_t = utc_time.timestamp()
 
         d = data[["device_id", "x", "y", "z", "sr"]].iloc[i]
         d["device_id"] = "mx" + d["device_id"]
@@ -99,21 +103,23 @@ def publish_jsonl(data_path, client, topic):
             "traces": [{"x": d["x"], "y": d["y"], "z": d["z"]}],
             "sr": d["sr"],
             "device_id": d["device_id"],
+            "cloud_send": cloud_t
         }
+        message = json.dumps(to_publish)
 
-        client.publish(topic, json.dumps(to_publish))
+        client.publish(topic, message)
 
         time.sleep(timediff.iloc[i])
 
         print(
-            datetime.utcfromtimestamp(data["cloud_t"].iloc[i]).strftime(
+            datetime.datetime.utcfromtimestamp(data["cloud_t"].iloc[i]).strftime(
                 "%Y-%m-%d %H:%M:%S"
             )
         )
 
 
 eqs = [
-    # "2017_12_15",
+    "2017_12_15",
     "2017_12_16",
     "2017_12_25",
     "2018_1_8",

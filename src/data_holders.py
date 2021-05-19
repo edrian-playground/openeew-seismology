@@ -18,6 +18,8 @@ class Traces:
 
     def update(self, data, cloud_t):
 
+        # print("Message delay: " + str(cloud_t-data["cloud_send"]))
+
         device_id = data["device_id"]
         x = data["traces"][0]["x"]
         y = data["traces"][0]["y"]

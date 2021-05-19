@@ -71,6 +71,8 @@ class Event:
             else:
                 self.update_events(event_id)
                 self.events.publish_event(self.params, event_id=event_id)
+        
+        # print(self.detections)
 
     def get_detections(self):
         """Get new detections from the detection table"""
