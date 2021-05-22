@@ -25,6 +25,7 @@ no_det_win = 60  # window without new detections after a detection
 vert_chan = "x"  # which channel is oriented in the vertical direction
 sleep_time = 1  # the detection algorithm pauses for this time after each loop
 plot_detection = True  # do you want to plot and save detections?
+plot_event = True  # do you want to plot and save events?
 
 # DEVICE DATABASE
 sleep_time_devices = 10  # the update device table after this time
@@ -34,7 +35,7 @@ device_local_path = "./data/devices/device_locations.json"
 # LOCATION AND MAGNITUDE REGRESSION PARAMS
 tsl_max = 60  # save/discard event after this many seconds without a new detection
 assoc_win = 2  # window for associated phases
-ndef_min = 4  # minimum number of station detections defining an event
+ndef_min = 3  # minimum number of station detections defining an event
 sigma_type = "const"  # either 'const' sigma or 'linear' function
 sigma_const = 3  # overall time error (travel time + pick + cloud_time)
 nya_weight = 1  # how much to weight not-yet-arrived information
@@ -77,6 +78,7 @@ params = {
     "buffer_len": buffer_len,
     "sleep_time": sleep_time,
     "plot_detection": plot_detection,
+    "plot_event": plot_event,
     "sleep_time_devices": sleep_time_devices,
     "db_name": db_name,
     "device_local_path": device_local_path,
