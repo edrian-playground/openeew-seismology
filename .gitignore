@@ -136,4 +136,5 @@ dmypy.json
 .DS_Store
 
 # Detections
-./obj/detections
+obj/detections/
+obj/events/
