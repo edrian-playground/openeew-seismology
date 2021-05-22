@@ -14,6 +14,7 @@ import time
 import matplotlib
 import matplotlib.pyplot as plt
 
+
 class Event:
     """This class handles all the detection procedures"""
 
@@ -65,7 +66,6 @@ class Event:
                 new_exist = "new"
 
             self.print_detection_stats(new_detection["device_id"], new_exist)
-
 
         # 3. Update location and magnitude of each event
         for event_id in list(self.active_events.keys()):
@@ -368,7 +368,7 @@ class Event:
         num_assoc = self.get_number_of_assoc(event_id)
 
         # if there is only one associated phase, the best location is the station location
-        if all([assoc==False, num_assoc<2]):
+        if all([assoc == False, num_assoc < 2]):
             best_lat = fist_dev_lat
             best_lon = fist_dev_lon
             best_depth = self.params["eq_depth"]  # depth is fixed for all
@@ -524,7 +524,9 @@ class Event:
 
     def print_event_stats(self, event_id):
 
-        event = self.events.data[self.events.data["event_id"]==event_id].sort_values("cloud_t")
+        event = self.events.data[self.events.data["event_id"] == event_id].sort_values(
+            "cloud_t"
+        )
         num_assoc = event["num_assoc"]
 
         # print only
@@ -536,8 +538,8 @@ class Event:
             magnitude = event["mag"].iloc[-1]
             best_lat = event["lat"].iloc[-1]
             best_lon = event["lon"].iloc[-1]
-        
-            if np.diff(num_assoc)[-1]>0:
+
+            if np.diff(num_assoc)[-1] > 0:
 
                 print(
                     "🔥 Earthquake in progress: event_id: "
@@ -555,12 +557,16 @@ class Event:
             if self.params["plot_event"]:
                 matplotlib.use("agg")
                 plt.imshow(self.active_events[event_id]["loc_prob"])
-                plt.savefig("./obj/events/" + event_id + '_' + str(num_assoc.iloc[-1]) + ".png")
+                plt.savefig(
+                    "./obj/events/" + event_id + "_" + str(num_assoc.iloc[-1]) + ".png"
+                )
                 plt.close()
 
     def print_detection_stats(self, device_id, new_exist):
 
-        detection = self.detections.data[self.detections.data["device_id"]==device_id].sort_values("cloud_t")
+        detection = self.detections.data[
+            self.detections.data["device_id"] == device_id
+        ].sort_values("cloud_t")
         cloud_t = detection["cloud_t"]
         event_id = detection["event_id"].iloc[0]
 
@@ -568,9 +574,7 @@ class Event:
             "⭐ New detection: device_id: "
             + device_id
             + " at "
-            + datetime.datetime.utcfromtimestamp(cloud_t).strftime(
-                "%Y-%m-%d %H:%M:%S"
-            )
+            + datetime.datetime.utcfromtimestamp(cloud_t).strftime("%Y-%m-%d %H:%M:%S")
             + ", assoc. with "
             + new_exist
             + " event_id: "
@@ -855,7 +859,9 @@ class Event:
 
     def get_number_of_assoc(self, event_id):
 
-        assoc = self.events.data[self.events.data["event_id"]==event_id].sort_values("cloud_t")
+        assoc = self.events.data[self.events.data["event_id"] == event_id].sort_values(
+            "cloud_t"
+        )
         num_assoc = len(assoc)
 
         return num_assoc
