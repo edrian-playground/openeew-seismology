@@ -24,6 +24,7 @@ STALTA_thresh = 3  # threshold for STA/LTA
 no_det_win = 60  # window without new detections after a detection
 vert_chan = "x"  # which channel is oriented in the vertical direction
 sleep_time = 1  # the detection algorithm pauses for this time after each loop
+plot_detection = True # do you want to plot and save detections?
 
 # DEVICE DATABASE
 sleep_time_devices = 10  # the update device table after this time
@@ -75,6 +76,7 @@ params = {
     "detection_model_name": detection_model_name,
     "buffer_len": buffer_len,
     "sleep_time": sleep_time,
+    "plot_detection": plot_detection,
     "sleep_time_devices": sleep_time_devices,
     "db_name": db_name,
     "device_local_path": device_local_path,

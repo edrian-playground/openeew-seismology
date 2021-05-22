@@ -17,10 +17,12 @@ class Event:
 
     def __init__(self, devices, detections, events, travel_times, params) -> None:
         super().__init__()
+
         self.devices = devices
         self.detections = detections
-        self.params = params
         self.events = events
+
+        self.params = params
         self.travel_times = travel_times
         self.active_events = {}
 
@@ -28,7 +30,6 @@ class Event:
 
         # 1. Get  new detections
         new_detections = self.get_detections()
-        new_detections = new_detections.sort_values("cloud_t", ascending=True)
 
         # 2. Associate new detections with events
         # for each new detection
@@ -46,24 +47,26 @@ class Event:
                     det_assoc = self.associate(event_id, new_index, new_detection)
 
                 if det_assoc == True:
+                    new_exist = 'existing'
                     break
 
             if det_assoc == False:
 
                 # if it could not be associated with an existing event, create a new one
                 self.set_new_event(new_index, new_detection)
+                new_exist = 'new'
 
             print(
-                "⭐ New detection at the device "
+                "⭐ New detection: device_id: "
                 + new_detection["device_id"]
-                + " at "
-                + str(new_detection["cloud_t"])
+                + " at " 
+                + datetime.datetime.utcfromtimestamp(new_detection["cloud_t"]).strftime("%Y-%m-%d %H:%M:%S")
+                + ", assoc. with "
+                + new_exist
+                + " event_id: "
+                + str(self.detections.data[self.detections.data["device_id"]==new_detection["device_id"]]["event_id"].iloc[0])
             )
-            print(
-                "     Associated with event id: "
-                + str(self.detections.data["event_id"].iloc[-1])
-            )
-
+                
         # 3. Update location and magnitude of each event
         for event_id in list(self.active_events.keys()):
 
@@ -81,13 +84,12 @@ class Event:
                 self.update_events(event_id)
                 self.events.publish_event(self.params, event_id=event_id)
 
-        # print(self.detections)
-
     def get_detections(self):
         """Get new detections from the detection table"""
 
         # Get new detections
         new_detections = self.detections.data[self.detections.data["event_id"].isnull()]
+        new_detections = new_detections.sort_values("cloud_t", ascending=True)
 
         return new_detections
 
@@ -211,36 +213,42 @@ class Event:
         nya_devices, _ = self.get_active_devices_ingrid(event_id)
         loc_nya_lat = nya_devices["latitude"].to_list()
         loc_nya_lon = nya_devices["longitude"].to_list()
-        loc_nya = list(set(zip(loc_nya_lon, loc_nya_lat)))
+        loc_nya = list(zip(loc_nya_lon, loc_nya_lat))
 
         # append the loc_det at the beginning
         loc_all = loc_det + loc_nya
+        loc_all = list(set(loc_all))
+        
+        if len(loc_all)>3:
 
-        # compute the Voronoi cells
-        vor = scipy.spatial.Voronoi(loc_all)
-        regions, vertices = self.voronoi_finite_polygons_2d(vor)
+            # compute the Voronoi cells
+            vor = scipy.spatial.Voronoi(loc_all)
+            regions, vertices = self.voronoi_finite_polygons_2d(vor)
 
-        # get the lat and lon grid
-        lat_grid = self.travel_times.grid_lat + loc_det[0][1]
-        lon_grid = self.travel_times.grid_lon + loc_det[0][0]
+            # get the lat and lon grid
+            lat_grid = self.travel_times.grid_lat + loc_det[0][1]
+            lon_grid = self.travel_times.grid_lon + loc_det[0][0]
 
-        # get the polygon aroud the device with detection
-        polygon = vertices[regions[0]]
+            # get the polygon aroud the device with detection
+            polygon = vertices[regions[0]]
 
-        # get the points in the polygon
-        points = np.concatenate(
-            (
-                np.reshape(lon_grid, (lon_grid.size, 1)),
-                np.reshape(lat_grid, (lat_grid.size, 1)),
-            ),
-            axis=1,
-        )
-        inside, _ = inpoly2(points, polygon)
+            # get the points in the polygon
+            points = np.concatenate(
+                (
+                    np.reshape(lon_grid, (lon_grid.size, 1)),
+                    np.reshape(lat_grid, (lat_grid.size, 1)),
+                ),
+                axis=1,
+            )
+            inside, _ = inpoly2(points, polygon)
 
-        # change the points in the polygons to 1 and out of the polygon to 0
-        inside = inside.reshape(lon_grid.shape)
-        inside[inside == True] = 1
-        inside[inside == False] = 0
+            # change the points in the polygons to 1 and out of the polygon to 0
+            inside = inside.reshape(lon_grid.shape)
+            inside[inside == True] = 1
+            inside[inside == False] = 0
+
+        else:
+            inside = np.ones_like(self.travel_times.grid_lat)
 
         # get the best prob
         loc_prior = self.prior_loc()
@@ -651,17 +659,13 @@ class Event:
         self.events.update(new_event)
 
         if num_assoc >= 4:
-            print("🔥 Event id " + str(event_id) + " in progress:")
             print(
-                "     Magnitude: "
-                + str(magnitude)
-                + ", Lat: "
-                + str(best_lat)
-                + ", Lon: "
-                + str(best_lon)
-                + ", Associated detections: "
-                + str(num_assoc)
-                + "."
+                "🔥 Earthquake in progress: event_id: "
+                + str(event_id)
+                + " M " + str(magnitude)
+                + " lat " + str(best_lat)
+                + " lon " + str(best_lon)
+                + " assoc " + str(num_assoc)
             )
 
     def associate(self, event_id, new_index, new_detection):

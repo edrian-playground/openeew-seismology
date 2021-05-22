@@ -102,7 +102,7 @@ class Detections:
         self.data = self.data.append(data, ignore_index=True)
 
     def drop(self, event_id, params):
-
+        
         # publish old detections to mqtt
         old_detections = self.data[self.data["event_id"] == event_id]
 

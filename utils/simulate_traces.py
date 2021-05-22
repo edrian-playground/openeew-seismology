@@ -50,7 +50,7 @@ def run(datapath):
             # cafile=os.environ["CUS_MQTT_CERT"],
         )
 
-    topic = "iot-2/type/OpenEEW/id/000000000000/evt/trace/fmt/json"
+    topic = "iot-2/type/OpenEEW/id/000000000000/evt/status/fmt/json"
 
     publish_jsonl(datapath, client, topic)
 
@@ -78,7 +78,7 @@ def publish_jsonl(data_path, client, topic):
     # loop over all *.jsonl files in a folder
     for filepath in glob.iglob(data_path + "/*/*.jsonl"):
 
-        print("Processing:" + filepath)
+        # print("Processing:" + filepath)
 
         with open(filepath, "r") as json_file:
             json_array = list(json_file)
@@ -90,7 +90,7 @@ def publish_jsonl(data_path, client, topic):
     timediff = timediff.iloc[1:].append(pd.Series([0])) / 1
 
     # loop over all json elements in the json array and publish to MQTT
-    for i in range(3200, len(data)):
+    for i in range(len(data)):
 
         dt = datetime.datetime.now(datetime.timezone.utc)
         utc_time = dt.replace(tzinfo=datetime.timezone.utc)

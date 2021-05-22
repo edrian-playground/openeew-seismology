@@ -8,10 +8,9 @@ from scipy import signal
 import time
 import pandas as pd
 
+import matplotlib
 import matplotlib.pyplot as plt
 from datetime import datetime
-
-import warnings
 
 from obspy.core.trace import Trace
 
@@ -86,7 +85,8 @@ class Detect:
                     tr.stats.channel = channel
                     tr.stats.station = device
 
-                    tr.filter("highpass", freq=1.0)
+                    # tr.filter("highpass", freq=0.2)
+                    tr.detrend(type='constant')
 
                     tr_orig = tr.copy()
 
@@ -139,19 +139,25 @@ class Detect:
                                 index=[0],
                             )
 
-                            warnings.filterwarnings("ignore")
-                            plt.plot(tr_orig.data, color=[0.4, 0.4, 0.4])
-                            plt.plot(tr.data)
-                            plt.savefig(
-                                "./obj/detections/"
-                                + device
-                                + "_"
-                                + detection_id
-                                + ".png"
-                            )
-                            plt.close()
+                            # plot all detections and save in obj/detections folder
+                            if self.params["plot_detection"]:
+                                self.plot_detection(tr_orig, tr, device, detection_id)
 
                             self.detections.update(new_detection)
+
+    def plot_detection(self, tr_orig, tr, device, detection_id):
+
+        matplotlib.use('agg')
+        plt.plot(tr_orig.data, color=[0.4, 0.4, 0.4])
+        plt.plot(tr.data)
+        plt.savefig(
+            "./obj/detections/"
+            + device
+            + "_"
+            + detection_id
+            + ".png"
+        )
+        plt.close()
 
     def get_pd(self, trace, time, det_time):
 

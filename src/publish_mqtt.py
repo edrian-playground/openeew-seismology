@@ -19,6 +19,7 @@ def run(topic, json_data, params):
             port=int(os.environ["MQTT_PORT"]),
             username=os.environ["MQTT_USERNAME"],
             password=os.environ["MQTT_PASSWORD"],
+            clientid=os.environ["MQTT_CLIENTID"] + "_pub_res"
         )
 
     elif params["MQTT"] == "local":
@@ -28,6 +29,7 @@ def run(topic, json_data, params):
             port=1883,
             username="NA",
             password="NA",
+            clientid=os.environ["MQTT_CLIENTID"] + "_pub_res"
         )
 
     elif params["MQTT"] == "custom":
@@ -37,6 +39,7 @@ def run(topic, json_data, params):
             port=int(os.environ["CUS_MQTT_PORT"]),
             username=os.environ["CUS_MQTT_USERNAME"],
             password=os.environ["CUS_MQTT_PASSWORD"],
+            clientid=os.environ["CUS_MQTT_CLIENTID"] + "_pub_res"
             # cafile=os.environ["CUS_MQTT_CERT"],
         )
 
@@ -46,7 +49,6 @@ def run(topic, json_data, params):
 
     client.disconnect()
 
-
 def publish_json(client, topic, data):
     """Publish each JSON to a given topic"""
 
@@ -54,10 +56,9 @@ def publish_json(client, topic, data):
 
     client.publish(topic, json_obj)
 
-
-def create_client(host, port, username, password, cafile=None):
+def create_client(host, port, username, password, clientid, cafile=None):
     """Creating an MQTT Client Object"""
-    client = MqttClient()
+    client = MqttClient(clientid)
 
     if username and password:
         client.username_pw_set(username=username, password=password)
