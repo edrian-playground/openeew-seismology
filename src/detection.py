@@ -11,6 +11,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import datetime
 
+import warnings
+
 from obspy.core.trace import Trace
 
 __author__ = "Vaclav Kuna"
@@ -85,6 +87,9 @@ class Detect:
                     tr.stats.station = device
 
                     tr.filter("highpass", freq=1.0)
+
+                    tr_orig = tr.copy()
+
                     tr.trigger(
                         "recstalta",
                         sta=self.params["STA_len"],
@@ -94,6 +99,7 @@ class Detect:
                     (ind,) = np.where(tr.data > STALTA_thresh)
 
                     if len(ind) > 0:
+
                         det_time = time.iloc[ind[0]]
 
                         past_detections = self.detections.data[
@@ -132,6 +138,12 @@ class Detect:
                                 },
                                 index=[0],
                             )
+
+                            warnings.filterwarnings( "ignore")
+                            plt.plot(tr_orig.data, color=[.4, .4, .4])
+                            plt.plot(tr.data)
+                            plt.savefig('./obj/detections/'+ device + "_" + detection_id +'.png')
+                            plt.close()
 
                             self.detections.update(new_detection)
 

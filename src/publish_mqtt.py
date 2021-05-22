@@ -16,7 +16,7 @@ def run(topic, json_data, params):
         # create a client
         client = create_client(
             host=os.environ["MQTT_HOST"],
-            port=os.environ["MQTT_PORT"],
+            port=int(os.environ["MQTT_PORT"]),
             username=os.environ["MQTT_USERNAME"],
             password=os.environ["MQTT_PASSWORD"],
         )

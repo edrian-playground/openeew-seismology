@@ -73,10 +73,7 @@ class DataReceiver:
         """Upon connecting to an MQTT server, subscribe to the topic
         The production topic is 'iot-2/type/OpenEEW/id/+/evt/trace/fmt/json'"""
 
-        topic = "iot-2/type/OpenEEW/id/+/evt/trace/fmt/json"
-        client.subscribe(topic)
-
-        topic = "iot-2/evt/status/fmt/json"
+        topic = "iot-2/type/OpenEEW/id/+/evt/+/fmt/json"
         client.subscribe(topic)
 
         print(f"✅ Subscribed to sensor data with result code {resultcode}")
@@ -92,6 +89,8 @@ class DataReceiver:
             dt = datetime.datetime.now(datetime.timezone.utc)
             utc_time = dt.replace(tzinfo=datetime.timezone.utc)
             cloud_t = utc_time.timestamp()
+
+            # print(data["device_id"])
 
             self.df_holder.update(data, cloud_t)
         except BaseException as exception:

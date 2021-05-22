@@ -3,7 +3,7 @@ This file sets parameters used in real-time OpenEEW algorithm
 """
 
 # MQTT
-MQTT = "local"  # local, custom, or IBM
+MQTT = "IBM"  # local, custom, or IBM
 
 # TRAVEL TIME GRID AND CALCULATION
 lat_width = 20  # latitude grid width
@@ -13,13 +13,12 @@ eq_depth = 20  # earthquake depth
 vel_model = "iasp91"  # velocity model from obspy list
 tt_path = "./obj/travel_times"  # relative path to the travel_time folder
 buffer_len = 15  # buffer_len*samp_rate must be longer than array_samp
-ev_buffer = 30  # how long to keep events and detections in buffer
 
 # DETECTION
 det_type = "stalta"  # 'stalta' or 'ml' for machine learning
 detection_model_name = "detection_model.model"  # name of the ml model
 STA_len = 1  # STA length in samples
-LTA_len = 10  # LTA length in samples
+LTA_len = 8  # LTA length in samples
 array_samp = 352  # must be >= STA_len+LTA_len for 'stalta', or 300 for 'ml'
 STALTA_thresh = 3  # threshold for STA/LTA
 no_det_win = 60  # window without new detections after a detection
@@ -32,7 +31,7 @@ db_name = "openeew-devices"
 device_local_path = "./data/devices/device_locations.json"
 
 # LOCATION AND MAGNITUDE REGRESSION PARAMS
-tsl_max = 20  # save/discard event after this many seconds without a new detection
+tsl_max = 60  # save/discard event after this many seconds without a new detection
 assoc_win = 2  # window for associated phases
 ndef_min = 4  # minimum number of station detections defining an event
 sigma_type = "const"  # either 'const' sigma or 'linear' function
@@ -75,7 +74,6 @@ params = {
     "array_samp": array_samp,
     "detection_model_name": detection_model_name,
     "buffer_len": buffer_len,
-    "ev_buffer": ev_buffer,
     "sleep_time": sleep_time,
     "sleep_time_devices": sleep_time_devices,
     "db_name": db_name,

@@ -42,8 +42,8 @@ class GetDevices:
 
             try:
                 device_id = device["doc"]["DeviceID"]
-                latitude = device["doc"]["latitude"]
-                longitude = device["doc"]["longitude"]
+                latitude = float(device["doc"]["latitude"])
+                longitude = float(device["doc"]["longitude"])
 
                 dev = pd.DataFrame(
                     {
