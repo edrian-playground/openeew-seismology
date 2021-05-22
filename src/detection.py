@@ -139,10 +139,16 @@ class Detect:
                                 index=[0],
                             )
 
-                            warnings.filterwarnings( "ignore")
-                            plt.plot(tr_orig.data, color=[.4, .4, .4])
+                            warnings.filterwarnings("ignore")
+                            plt.plot(tr_orig.data, color=[0.4, 0.4, 0.4])
                             plt.plot(tr.data)
-                            plt.savefig('./obj/detections/'+ device + "_" + detection_id +'.png')
+                            plt.savefig(
+                                "./obj/detections/"
+                                + device
+                                + "_"
+                                + detection_id
+                                + ".png"
+                            )
                             plt.close()
 
                             self.detections.update(new_detection)

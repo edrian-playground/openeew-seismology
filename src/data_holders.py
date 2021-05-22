@@ -26,7 +26,7 @@ class Traces:
         z = data["traces"][0]["z"]
         sr = 31.25
 
-        if any([len(x)!=len(y), len(x)!=len(z), len(y)!=len(z)]):
+        if any([len(x) != len(y), len(x) != len(z), len(y) != len(z)]):
             sampnum = min([len(x), len(y), len(z)])
             x = x[0:sampnum]
             y = y[0:sampnum]

@@ -103,7 +103,7 @@ def publish_jsonl(data_path, client, topic):
             "traces": [{"x": d["x"], "y": d["y"], "z": d["z"]}],
             "sr": d["sr"],
             "device_id": d["device_id"],
-            "cloud_send": cloud_t
+            "cloud_send": cloud_t,
         }
         message = json.dumps(to_publish)
 

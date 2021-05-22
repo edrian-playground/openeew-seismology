@@ -53,7 +53,12 @@ class Event:
                 # if it could not be associated with an existing event, create a new one
                 self.set_new_event(new_index, new_detection)
 
-            print("⭐ New detection at the device " + new_detection["device_id"] + " at " + str(new_detection["cloud_t"]))
+            print(
+                "⭐ New detection at the device "
+                + new_detection["device_id"]
+                + " at "
+                + str(new_detection["cloud_t"])
+            )
             print(
                 "     Associated with event id: "
                 + str(self.detections.data["event_id"].iloc[-1])
@@ -75,7 +80,7 @@ class Event:
             else:
                 self.update_events(event_id)
                 self.events.publish_event(self.params, event_id=event_id)
-        
+
         # print(self.detections)
 
     def get_detections(self):
@@ -193,9 +198,13 @@ class Event:
 
         # get the station with the first detection
         first_device = new_detection["device_id"]
-        first_device_lat = self.devices.data[self.devices.data["device_id"] == first_device]["latitude"].to_list()[0]
-        first_device_lon = self.devices.data[self.devices.data["device_id"] == first_device]["longitude"].to_list()[0]
-                # get location of all the detected device
+        first_device_lat = self.devices.data[
+            self.devices.data["device_id"] == first_device
+        ]["latitude"].to_list()[0]
+        first_device_lon = self.devices.data[
+            self.devices.data["device_id"] == first_device
+        ]["longitude"].to_list()[0]
+        # get location of all the detected device
         loc_det = [(first_device_lon, first_device_lat)]
 
         # get all the not-yet arrived devices
@@ -253,12 +262,12 @@ class Event:
         first_device = first_detection["device_id"]
 
         # get the first device latitude and longitude
-        fist_dev_lat = self.devices.data[self.devices.data["device_id"] == first_device][
-            "latitude"
-        ].iloc[0]
-        fist_dev_lon = self.devices.data[self.devices.data["device_id"] == first_device][
-            "longitude"
-        ].iloc[0]
+        fist_dev_lat = self.devices.data[
+            self.devices.data["device_id"] == first_device
+        ]["latitude"].iloc[0]
+        fist_dev_lon = self.devices.data[
+            self.devices.data["device_id"] == first_device
+        ]["longitude"].iloc[0]
 
         # get grid limits
         lat_min = -self.params["lat_width"] / 4 + fist_dev_lat
@@ -267,9 +276,13 @@ class Event:
         lon_max = self.params["lon_width"] / 4 + fist_dev_lon
 
         try:
-            devices = self.devices.data[self.devices.data["device_id"]!=first_device]
-            devices = devices[(devices["latitude"]>lat_min) & (devices["latitude"]<lat_max)]
-            devices = devices[(devices["longitude"]>lon_min) & (devices["longitude"]<lon_max)]
+            devices = self.devices.data[self.devices.data["device_id"] != first_device]
+            devices = devices[
+                (devices["latitude"] > lat_min) & (devices["latitude"] < lat_max)
+            ]
+            devices = devices[
+                (devices["longitude"] > lon_min) & (devices["longitude"] < lon_max)
+            ]
             device_ids = devices["device_id"].to_list()
         except:
             devices = None
@@ -434,7 +447,9 @@ class Event:
 
     def get_first_detection(self, event_id):
 
-        all_detections = self.detections.data[self.detections.data["event_id"]==event_id]
+        all_detections = self.detections.data[
+            self.detections.data["event_id"] == event_id
+        ]
         all_detections = all_detections.sort_values("cloud_t")
 
         first_detection = all_detections.iloc[0]
@@ -450,12 +465,12 @@ class Event:
         first_time = first_detection["cloud_t"]
 
         # get the first device latitude and longitude
-        fist_dev_lat = self.devices.data[self.devices.data["device_id"] == first_device_id][
-            "latitude"
-        ].iloc[0]
-        fist_dev_lon = self.devices.data[self.devices.data["device_id"] == first_device_id][
-            "longitude"
-        ].iloc[0]
+        fist_dev_lat = self.devices.data[
+            self.devices.data["device_id"] == first_device_id
+        ]["latitude"].iloc[0]
+        fist_dev_lon = self.devices.data[
+            self.devices.data["device_id"] == first_device_id
+        ]["longitude"].iloc[0]
 
         lat = self.travel_times.grid_lat + fist_dev_lat
         lon = self.travel_times.grid_lon + fist_dev_lon
@@ -472,7 +487,9 @@ class Event:
         best_depth = self.params["eq_depth"]  # depth is fixed for all
 
         # get origin time based on the location and the first detection
-        device_grid = self.get_device_tt_grid(first_device_id, first_device_id, self.params)
+        device_grid = self.get_device_tt_grid(
+            first_device_id, first_device_id, self.params
+        )
 
         sta_travel_time = device_grid[loc_prob == loc_prob.max()]
         best_orig_time = first_time - sta_travel_time[0]
