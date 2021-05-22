@@ -47,26 +47,32 @@ class Event:
                     det_assoc = self.associate(event_id, new_index, new_detection)
 
                 if det_assoc == True:
-                    new_exist = 'existing'
+                    new_exist = "existing"
                     break
 
             if det_assoc == False:
 
                 # if it could not be associated with an existing event, create a new one
                 self.set_new_event(new_index, new_detection)
-                new_exist = 'new'
+                new_exist = "new"
 
             print(
                 "⭐ New detection: device_id: "
                 + new_detection["device_id"]
-                + " at " 
-                + datetime.datetime.utcfromtimestamp(new_detection["cloud_t"]).strftime("%Y-%m-%d %H:%M:%S")
+                + " at "
+                + datetime.datetime.utcfromtimestamp(new_detection["cloud_t"]).strftime(
+                    "%Y-%m-%d %H:%M:%S"
+                )
                 + ", assoc. with "
                 + new_exist
                 + " event_id: "
-                + str(self.detections.data[self.detections.data["device_id"]==new_detection["device_id"]]["event_id"].iloc[0])
+                + str(
+                    self.detections.data[
+                        self.detections.data["device_id"] == new_detection["device_id"]
+                    ]["event_id"].iloc[0]
+                )
             )
-                
+
         # 3. Update location and magnitude of each event
         for event_id in list(self.active_events.keys()):
 
@@ -218,8 +224,8 @@ class Event:
         # append the loc_det at the beginning
         loc_all = loc_det + loc_nya
         loc_all = list(set(loc_all))
-        
-        if len(loc_all)>3:
+
+        if len(loc_all) > 3:
 
             # compute the Voronoi cells
             vor = scipy.spatial.Voronoi(loc_all)
@@ -662,10 +668,14 @@ class Event:
             print(
                 "🔥 Earthquake in progress: event_id: "
                 + str(event_id)
-                + " M " + str(magnitude)
-                + " lat " + str(best_lat)
-                + " lon " + str(best_lon)
-                + " assoc " + str(num_assoc)
+                + " M "
+                + str(magnitude)
+                + " lat "
+                + str(best_lat)
+                + " lon "
+                + str(best_lon)
+                + " assoc "
+                + str(num_assoc)
             )
 
     def associate(self, event_id, new_index, new_detection):

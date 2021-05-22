@@ -86,7 +86,7 @@ class Detect:
                     tr.stats.station = device
 
                     # tr.filter("highpass", freq=0.2)
-                    tr.detrend(type='constant')
+                    tr.detrend(type="constant")
 
                     tr_orig = tr.copy()
 
@@ -147,16 +147,10 @@ class Detect:
 
     def plot_detection(self, tr_orig, tr, device, detection_id):
 
-        matplotlib.use('agg')
+        matplotlib.use("agg")
         plt.plot(tr_orig.data, color=[0.4, 0.4, 0.4])
         plt.plot(tr.data)
-        plt.savefig(
-            "./obj/detections/"
-            + device
-            + "_"
-            + detection_id
-            + ".png"
-        )
+        plt.savefig("./obj/detections/" + device + "_" + detection_id + ".png")
         plt.close()
 
     def get_pd(self, trace, time, det_time):

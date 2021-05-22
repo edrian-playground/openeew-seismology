@@ -24,7 +24,7 @@ STALTA_thresh = 3  # threshold for STA/LTA
 no_det_win = 60  # window without new detections after a detection
 vert_chan = "x"  # which channel is oriented in the vertical direction
 sleep_time = 1  # the detection algorithm pauses for this time after each loop
-plot_detection = True # do you want to plot and save detections?
+plot_detection = True  # do you want to plot and save detections?
 
 # DEVICE DATABASE
 sleep_time_devices = 10  # the update device table after this time
