@@ -4,7 +4,6 @@ from cloudant.error import CloudantException
 from cloudant.result import Result, ResultByKey
 from cloudant.database import CloudantDatabase
 
-from dotenv import dotenv_values
 import time
 import pandas as pd
 import json
