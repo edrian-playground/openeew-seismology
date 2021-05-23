@@ -200,12 +200,10 @@ class Event:
                 ]
 
                 misfit.append(((tt_old - tt_new) - (det_time_old - new_time)) ** 2)
-            
+
             matplotlib.use("agg")
             plt.plot(misfit)
-            plt.savefig(
-                "./obj/assoc/" + event_id + "_" + str(len(misfit)) + ".png"
-            )
+            plt.savefig("./obj/assoc/" + event_id + "_" + str(len(misfit)) + ".png")
             plt.close()
 
             misfit_mean = np.sqrt(np.sum(np.array(misfit)) / len(misfit))
