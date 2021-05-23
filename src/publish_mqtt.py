@@ -5,7 +5,7 @@ from paho.mqtt.client import Client as MqttClient
 import os
 
 
-def run(region, topic, json_data, params):
+def run(topic, json_data, params):
     """
     Main method that creates client and executes the rest of the script
 
@@ -16,9 +16,10 @@ def run(region, topic, json_data, params):
         # create a client
         client = create_client(
             host=os.environ["MQTT_HOST"],
-            port=os.environ["MQTT_PORT"],
+            port=int(os.environ["MQTT_PORT"]),
             username=os.environ["MQTT_USERNAME"],
             password=os.environ["MQTT_PASSWORD"],
+            clientid=os.environ["MQTT_CLIENTID"] + "_pub_res",
         )
 
     elif params["MQTT"] == "local":
@@ -28,6 +29,7 @@ def run(region, topic, json_data, params):
             port=1883,
             username="NA",
             password="NA",
+            clientid=os.environ["MQTT_CLIENTID"] + "_pub_res",
         )
 
     elif params["MQTT"] == "custom":
@@ -37,10 +39,11 @@ def run(region, topic, json_data, params):
             port=int(os.environ["CUS_MQTT_PORT"]),
             username=os.environ["CUS_MQTT_USERNAME"],
             password=os.environ["CUS_MQTT_PASSWORD"],
+            clientid=os.environ["CUS_MQTT_CLIENTID"] + "_pub_res"
             # cafile=os.environ["CUS_MQTT_CERT"],
         )
 
-    topic = "iot-2/type/OpenEEW/id/" + region + "/evt/" + topic + "/fmt/json"
+    topic = "iot-2/type/OpenEEW/id/region/evt/" + topic + "/fmt/json"
 
     publish_json(client, topic, json_data)
 
@@ -55,9 +58,9 @@ def publish_json(client, topic, data):
     client.publish(topic, json_obj)
 
 
-def create_client(host, port, username, password, cafile=None):
+def create_client(host, port, username, password, clientid, cafile=None):
     """Creating an MQTT Client Object"""
-    client = MqttClient()
+    client = MqttClient(clientid)
 
     if username and password:
         client.username_pw_set(username=username, password=password)

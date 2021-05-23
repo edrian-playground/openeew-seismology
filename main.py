@@ -28,8 +28,8 @@ def main():
     # Set travel times class
     travel_times = data_holders.TravelTimes(params=params)
 
-    # Create a RawData DataFrame.
-    raw_data = data_holders.RawData()
+    # Create a Traces DataFrame.
+    traces = data_holders.Traces()
 
     # Create a Devices DataFrame.
     devices = data_holders.Devices()
@@ -45,13 +45,13 @@ def main():
     receive_devices_process = Thread(target=stream.run)
     receive_devices_process.start()
 
-    # We create and start our raw_data update worker
-    stream = receive_traces.DataReceiver(raw_data, params=params)
+    # We create and start our traces update worker
+    stream = receive_traces.DataReceiver(traces, params=params)
     receive_data_process = Thread(target=stream.run)
     receive_data_process.start()
 
     # We create and start detection worker
-    compute = detection.Detect(raw_data=raw_data, detections=detections, params=params)
+    compute = detection.Detect(traces=traces, detections=detections, params=params)
     detect_process = Thread(target=compute.run)
     detect_process.start()
 

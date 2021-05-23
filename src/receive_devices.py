@@ -37,26 +37,26 @@ class GetDevices:
 
         for device in all_devices:
 
-            if device["doc"]["status"] == "Connect":
+            # if device["doc"]["status"] == "Connect":
 
-                try:
-                    device_id = device["doc"]["DeviceID"]
-                    latitude = device["doc"]["latitude"]
-                    longitude = device["doc"]["longitude"]
+            try:
+                device_id = device["doc"]["DeviceID"]
+                latitude = float(device["doc"]["latitude"])
+                longitude = float(device["doc"]["longitude"])
 
-                    dev = pd.DataFrame(
-                        {
-                            "device_id": device_id,
-                            "latitude": latitude,
-                            "longitude": longitude,
-                        },
-                        index=[0],
-                    )
+                dev = pd.DataFrame(
+                    {
+                        "device_id": device_id,
+                        "latitude": latitude,
+                        "longitude": longitude,
+                    },
+                    index=[0],
+                )
 
-                    new_device_table = new_device_table.append(dev, ignore_index=True)
+                new_device_table = new_device_table.append(dev, ignore_index=True)
 
-                except:
-                    pass
+            except:
+                pass
 
         self.devices.data = new_device_table
 

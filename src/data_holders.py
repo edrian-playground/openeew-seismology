@@ -9,8 +9,8 @@ from src import travel_time, publish_mqtt
 
 
 @dataclass
-class RawData:
-    """This dataclass holds a reference to the RawData DF in memory."""
+class Traces:
+    """This dataclass holds a reference to the Traces DF in memory."""
 
     data: pd.DataFrame = pd.DataFrame()
 
@@ -18,7 +18,28 @@ class RawData:
 
     def update(self, data, cloud_t):
 
-        data = json.loads(data)
+        # print("Message delay: " + str(cloud_t-data["cloud_send"]))
+
+        device_id = data["device_id"]
+        x = data["traces"][0]["x"]
+        y = data["traces"][0]["y"]
+        z = data["traces"][0]["z"]
+        sr = 31.25
+
+        if any([len(x) != len(y), len(x) != len(z), len(y) != len(z)]):
+            sampnum = min([len(x), len(y), len(z)])
+            x = x[0:sampnum]
+            y = y[0:sampnum]
+            z = z[0:sampnum]
+
+        data = {
+            "device_id": device_id,
+            "x": x,
+            "y": y,
+            "z": z,
+            "sr": sr,
+            "cloud_t": cloud_t,
+        }
 
         # create cloud_time vector and replicate device_id
         number_of_entires = len(data["x"])
@@ -80,32 +101,17 @@ class Detections:
     def update(self, data):
         self.data = self.data.append(data, ignore_index=True)
 
-    def drop(self, params):
+    def drop(self, event_id, params):
 
-        # get timestamp for the received trace
-        dt = datetime.datetime.now(datetime.timezone.utc)
-        utc_time = dt.replace(tzinfo=datetime.timezone.utc)
-        cloud_t = utc_time.timestamp()
+        # publish old detections to mqtt
+        old_detections = self.data[self.data["event_id"] == event_id]
 
-        # drop all data older than cloud_t - buffer
-        try:
-            # publish old detections to mqtt
-            old_detections = self.data[
-                (self.data["cloud_t"] + params["det_ev_buffer"]) < cloud_t
-            ]
+        for _, det in old_detections.iterrows():
+            json_data = det.to_dict()
 
-            for _, det in old_detections.iterrows():
-                json_data = det.to_dict()
+            publish_mqtt.run("detection", json_data, params)
 
-                publish_mqtt.run(params["region"], "detection", json_data, params)
-
-            # delete old detections
-            self.data = self.data[
-                (self.data["cloud_t"] + params["det_ev_buffer"]) >= cloud_t
-            ]
-            # print("▫️ Number of detections in the buffer " + str(len(self.data)))
-        except:
-            pass
+        self.data = self.data[self.data["event_id"] != event_id]
 
 
 @dataclass
@@ -148,21 +154,10 @@ class Events:
         # append to the data
         self.data = self.data.append(df_new, ignore_index=True)
 
-    def drop(self, params):
+    def drop(self, event_id):
 
-        # get timestamp for the received trace
-        dt = datetime.datetime.now(datetime.timezone.utc)
-        utc_time = dt.replace(tzinfo=datetime.timezone.utc)
-        cloud_t = utc_time.timestamp()
-
-        # drop all data older than cloud_t - buffer
-        try:
-            self.data = self.data[
-                (self.data["cloud_t"] + params["det_ev_buffer"]) >= cloud_t
-            ]
-            # print("▫️ Number of events in the buffer " + str(len(self.data)))
-        except:
-            pass
+        self.data = self.data[self.data["event_id"] != event_id]
+        # print("▫️ Number of events in the buffer " + str(len(self.data)))
 
     def publish_event(self, params, event_id):
         """Publishes event to mqtt"""
@@ -172,7 +167,7 @@ class Events:
         if event["num_assoc"] >= params["ndef_min"]:
 
             json_data = event.to_dict()
-            publish_mqtt.run(params["region"], "event", json_data, params)
+            publish_mqtt.run("event", json_data, params)
 
 
 class TravelTimes:
