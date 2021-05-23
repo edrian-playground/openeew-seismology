@@ -90,7 +90,7 @@ def publish_jsonl(data_path, client, topic):
     timediff = timediff.iloc[1:].append(pd.Series([0])) / 1
 
     # loop over all json elements in the json array and publish to MQTT
-    for i in range(len(data)):
+    for i in range(0, len(data)):
 
         dt = datetime.datetime.now(datetime.timezone.utc)
         utc_time = dt.replace(tzinfo=datetime.timezone.utc)
@@ -120,10 +120,10 @@ def publish_jsonl(data_path, client, topic):
 
 eqs = [
     # "2017_12_15",
-    "2017_12_16",
-    "2017_12_25",
-    "2018_1_8",
-    "2018_1_29",
+    # "2017_12_16",
+    # "2017_12_25",
+    # "2018_1_8",
+    # "2018_1_29",
     "2018_2_16",
     "2018_8_12",
     "2018_8_22",
