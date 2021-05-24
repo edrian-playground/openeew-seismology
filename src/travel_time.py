@@ -7,6 +7,7 @@ import numpy as np
 import pickle
 from obspy.taup.tau import TauPyModel
 import math
+import os
 
 import sys
 import time
@@ -174,6 +175,9 @@ def get_travel_time(params):
         travel_time_fit = False
 
     if travel_time_fit == False:
+
+        if os.path.exists(params["tt_path"]) == False:
+            os.mkdir(params["tt_path"])
 
         # calculate travel_time vector
         tt_vector = get_travel_time_vector(params)
