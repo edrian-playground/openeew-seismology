@@ -21,8 +21,9 @@ STA_len = 1  # STA length in samples
 LTA_len = 8  # LTA length in samples
 array_samp = 352  # must be >= STA_len+LTA_len for 'stalta', or 300 for 'ml'
 STALTA_thresh = 3  # threshold for STA/LTA
+max_std = 0.08  # detect only if the STD of LTA window is under this value
 no_det_win = 60  # window without new detections after a detection
-vert_chan = "x"  # which channel is oriented in the vertical direction
+vert_chan = "y"  # which channel is oriented in the vertical direction
 sleep_time = 1  # the detection algorithm pauses for this time after each loop
 plot_detection = False  # do you want to plot and save detections?
 plot_event = False  # do you want to plot and save events?
@@ -35,7 +36,7 @@ device_local_path = "./data/devices/device_locations.json"
 # LOCATION AND MAGNITUDE REGRESSION PARAMS
 tsl_max = 60  # save/discard event after this many seconds without a new detection
 assoc_win = 2  # window for associated phases
-ndef_min = 3  # minimum number of station detections defining an event
+ndef_min = 4  # minimum number of station detections defining an event
 sigma_type = "const"  # either 'const' sigma or 'linear' function
 sigma_const = 3  # overall time error (travel time + pick + cloud_time)
 nya_weight = 1  # how much to weight not-yet-arrived information
@@ -71,6 +72,7 @@ params = {
     "STA_len": STA_len,
     "LTA_len": LTA_len,
     "STALTA_thresh": STALTA_thresh,
+    "max_std": max_std,
     "no_det_win": no_det_win,
     "vert_chan": vert_chan,
     "array_samp": array_samp,

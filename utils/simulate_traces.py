@@ -94,16 +94,15 @@ def publish_jsonl(data_path, client, topic):
 
         dt = datetime.datetime.now(datetime.timezone.utc)
         utc_time = dt.replace(tzinfo=datetime.timezone.utc)
-        cloud_t = utc_time.timestamp()
+        current_cloud_t = utc_time.timestamp()
 
-        d = data[["device_id", "x", "y", "z", "sr"]].iloc[i]
+        d = data[["device_id", "x", "y", "z", "sr", "cloud_t"]].iloc[i]
         d["device_id"] = "mx" + d["device_id"]
 
         to_publish = {
             "traces": [{"x": d["x"], "y": d["y"], "z": d["z"]}],
             "sr": d["sr"],
             "device_id": d["device_id"],
-            "cloud_send": cloud_t,
         }
         message = json.dumps(to_publish)
 
@@ -119,7 +118,7 @@ def publish_jsonl(data_path, client, topic):
 
 
 eqs = [
-    # "2017_12_15",
+    "2017_12_15",
     "2017_12_16",
     "2017_12_25",
     "2018_1_8",

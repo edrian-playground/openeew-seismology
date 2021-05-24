@@ -132,9 +132,8 @@ class Event:
         new_time = new_detection["cloud_t"]
 
         # get first detection
-        first_det_device = self.detections.data[
-            self.detections.data["event_id"] == event_id
-        ].iloc[0]["device_id"]
+        first_detection = self.get_first_detection(event_id)
+        first_det_device = first_detection["device_id"]
 
         # set a new list of new probabilities
         new_prob = np.zeros_like(self.travel_times.grid_lat)
@@ -201,6 +200,11 @@ class Event:
                 ]
 
                 misfit.append(((tt_old - tt_new) - (det_time_old - new_time)) ** 2)
+
+            # matplotlib.use("agg")
+            # plt.plot(misfit)
+            # plt.savefig("./obj/assoc/" + event_id + "_" + str(len(misfit)) + ".png")
+            # plt.close()
 
             misfit_mean = np.sqrt(np.sum(np.array(misfit)) / len(misfit))
 
