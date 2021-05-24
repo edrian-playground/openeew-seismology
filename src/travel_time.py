@@ -176,7 +176,7 @@ def get_travel_time(params):
 
     if travel_time_fit == False:
 
-        if os.path.exists(params["tt_path"])==False:
+        if os.path.exists(params["tt_path"]) == False:
             os.mkdir(params["tt_path"])
 
         # calculate travel_time vector
