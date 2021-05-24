@@ -89,6 +89,7 @@ class Detect:
                     tr.detrend(type="constant")
 
                     tr_orig = tr.copy()
+                    std = np.std(tr_orig.data[: int(STA_len * sr)])
 
                     tr.trigger(
                         "recstalta",
@@ -108,7 +109,9 @@ class Detect:
                             > 0
                         ]
 
-                        if past_detections.shape[0] == 0:
+                        if (past_detections.shape[0] == 0) & (
+                            std <= self.params["max_std"]
+                        ):
 
                             # Get event ID
                             # timestamp
@@ -141,15 +144,18 @@ class Detect:
 
                             # plot all detections and save in obj/detections folder
                             if self.params["plot_detection"]:
-                                self.plot_detection(tr_orig, tr, device, detection_id)
+                                self.plot_detection(
+                                    tr_orig, tr, device, detection_id, std
+                                )
 
                             self.detections.update(new_detection)
 
-    def plot_detection(self, tr_orig, tr, device, detection_id):
+    def plot_detection(self, tr_orig, tr, device, detection_id, std):
 
         matplotlib.use("agg")
         plt.plot(tr_orig.data, color=[0.4, 0.4, 0.4])
         plt.plot(tr.data)
+        plt.text(0, 1, str(std))
         plt.savefig("./obj/detections/" + device + "_" + detection_id + ".png")
         plt.close()
 
