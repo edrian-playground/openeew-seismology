@@ -1,4 +1,5 @@
 # OpenEEW seismological code
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=edrian-playground_openeew-seismology%3A<artifact-id>&metric=alert_status)](https://sonarcloud.io/dashboard?id=&lt;group-id&gt;%3A&lt;artifact-id>)
 
 ## Introduction
 
