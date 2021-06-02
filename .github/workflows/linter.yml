@@ -18,6 +18,7 @@ jobs:
 
       - name: Set up Python
         uses: actions/setup-python@v2
+      - run: pip install requirements.txt
       - run: pip install black pylint
       - run: black --check --verbose .
-      - run: pylint src/*
+      - run: pylint --rcfile=./.pylintrc **/*.py
